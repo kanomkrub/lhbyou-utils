@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>DecryptJaaa</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9-1/crypto-js.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsencrypt/bin/jsencrypt.min.js"></script>
+    <style>
+        .container {
+            display: flex;
+        }
+        .decryptor {
+            padding: 10px;
+            border-right: 1px solid #ccc;
+        }
+	.button-container {
+            display: flex; /* Enable Flexbox */
+            justify-content: center; /* Center buttons horizontally */
+        }
+    </style>
+    <script>
+	function clearInput() { 
+		document.getElementById('encrypted-text').value = '';
+		document.getElementById('encrypted').value = '';
+		document.getElementById('output-aes').value = '';
+		document.getElementById('error-message-aes').value = '';
+	}
+	function setExample() {
+		document.getElementById('encrypted-text').value = 'gPuk0P9HzaVNDx8jSZFJnvWIw96cuZsZ/hDCYLdxQavmnw4NymufJYFYrDT5aX+ngPdzbR74EAzZqIJl1zY4Y4G/ZL8WLHML3bKHVHvv7IHC4ktwHBAXMBwwrgsogqHX2GSl32SEeRExXbPaIQvQubxIEXbOMpKJAJrldR2PjC1aL11yBPS4tDSVjT8saIpzrJjRwwfFLSL5absDuBvAYJ98RvaZcHgPGngblNSDwF9QUpQaO3BEtA6Zf3Txf5OxDYapwrayTYxkwVo+9aziszASobrv6lZV8Ix5jtjX7C03mibzC1L+1M58hYDkVcLthWy6rJhugbQngpt4cGbthQ==';
+		document.getElementById('encrypted').value = 'LiXG+gjdnq5xfy6G9VIra4Xbnl1CD8Ahz+rrFF2l/TFvkkq1SNUydqqfmD7O75RCE1dEC6zd7/wzp88Z2wp5dm4IzMt4PheqJT4B1sN7KSq+jD33sn15N0jl31CbtxLPXjQUYy//L/WSvMcNzvHj0s85FtW0KICJxAyx9pVyyBTcKsOqwnKmY1UjkIjZINkHqNRfyHHOoE2ENn7dqRmPWNsd1KlyMvJNFU9f0cuDwliVBFFZ6MYhHMTqymIgZFmsq5Xh1IVFcaLhvkgtk17Tk7SuuLRCuKsuG+Mco9TSjCDGf+u5QkBA1g0ktKQNfZ04ZyRbf5khs1hHYAy5D9Noz8yzL+msZevJaAox+Y9n8WBQSqA/hvJrYrSAknTtmjDUbwgCfEqcZtfkVk4g3wxOBb28xtUdP+aYCHvWzZ+K8S2qKk25nOXKZ1fD4OXaISMiTx/U2OTYRy+NnXZo1WZHAQxMzjomWYbh0e/8f/t0n1k0nlQCraP8fKTQHWA692eBFY2XV8ffflY/GU5NPeGdZaURQUOjBxXGsCaCO17N0FWQDR2tc7JQe8fTao+Sm6lhuBxfTyVPkZ/WKm+NtqJNr5JOJ6+VqBTfn+UwWLApmmPoplYbctBkdf0ku0B8F9LoZZxWNVJiqPDWB1ElXrRJHdFuhRYh6Bd351I5o3VnQHUZhJCu9Sp9fqjkV5dNp5dwB+MF/g2DsRbc1Lq8r2qeOQ==';
+
+	}
+	function decryptNMU() {
+
+            var errorMsgRSA = document.getElementById('error-message-rsa');
+            errorMsgRSA.textContent = ''; // Clear previous error messages
+
+            try {
+                var encryptedText = document.getElementById('encrypted-text').value;
+                var privateKey = document.getElementById('private-key').value;
+
+                var decrypt = new JSEncrypt();
+                decrypt.setPrivateKey(privateKey);
+
+                var decryptedText = decrypt.decrypt(encryptedText);
+
+                if (!decryptedText) {
+                    errorMsgRSA.textContent = "Decryption failed: Invalid encrypted text or private key.";
+                    return;
+                }
+
+                document.getElementById('output-rsa').value = decryptedText;
+		document.getElementById('iv').value = decryptedText.substring(0, 8) + decryptedText.substring(decryptedText.length - 8);
+		document.getElementById('key').value = decryptedText.substring(8, decryptedText.length - 8);
+            } catch (e) {
+                errorMsgRSA.textContent = "Error: " + e.message;
+            }
+
+            var errorMsgAES = document.getElementById('error-message-aes');
+            errorMsgAES.textContent = ''; // Clear previous error messages
+
+            try {
+                var encrypted = document.getElementById('encrypted').value;
+                var iv = document.getElementById('iv').value;
+                var key = document.getElementById('key').value;
+
+                if (key.length !== 16 && key.length !== 24 && key.length !== 32) {
+                    errorMsgAES.textContent = "Invalid key length. Key must be 16, 24, or 32 characters long.";
+                    return;
+                }
+
+                var keyWords = CryptoJS.enc.Utf8.parse(key);
+                var ivWords = CryptoJS.enc.Hex.parse(iv);
+
+                var decrypted = CryptoJS.AES.decrypt(encrypted, keyWords, {
+                    iv: ivWords,
+                    mode: CryptoJS.mode.CBC,
+                    padding: CryptoJS.pad.Pkcs7
+                });
+
+                var decryptedText = decrypted.toString(CryptoJS.enc.Utf8);
+
+                if (!decryptedText) {
+                    errorMsgAES.textContent = "Decryption failed: Invalid encrypted text or key.";
+                    return;
+                }
+
+                document.getElementById('output-aes').value = decryptedText;
+            } catch (e) {
+                errorMsgAES.textContent = "Error: " + e.message;
+            }
+        }
+
+    </script>
+</head>
+<body>
+    <h2>NMU Decryption Tools</h2>
+    <div class="container">
+        <div class="decryptor">
+            <label>สำหรับ decrypt req/resp message ระหว่าง mobile/service<br> (โปรดระวังอาจจะเห็น sensitive data เช่น laserid, pin, password ที่ mobile ส่งมาได้)</label><br><br>
+            <label for="encrypted-text">key:  x-nmu-secret-key (from request header)</label><br>
+            <textarea id="encrypted-text" name="encrypted-text" rows="5" cols="70"></textarea><br>
+
+            <label for="encrypted">key:  encrypted request/response (from request/response body)</label><br>
+            <textarea id="encrypted" name="encrypted" rows="10" cols="70"></textarea><br>
+
+            <label for="private-key">key: private-key (default = nonprod sit,uat,preprod)</label><br>
+            <textarea id="private-key" name="private-key" rows="9" cols="70" >MIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQDkfRpujm8H4nW2zAQ4fw6WWRTqAiftseOiZ75Z9vEojs2GsyvUu0uzZO5byhEzKJ0/hBkgFP+SolZmVRECYdWj16KA5K5Oklnj4C5CL+PAaJrR8gwuSarK4bJdv7ICukVYHvjGwkzwLsMKt/gsl0HQrFJvEiNgY8m1s2hQqovrDEE6VdM09FHfvcHKKJrh8hUPuglTQteAD7h6n3A0vlMPySdr6wnKrh5uHvCn9CmNYmLk9S3h0gyPTAV4LcLbWAegl0/u6wOGUR/kn3j0NwyFWzcLKMHrsdsjYMpCE3Z0w0c2pHW85aKpFFeytmODsXIJt+xy0SAWN6POhWHnAcxVAgMBAAECggEBAK90FZjxzPbcAhJ1hYQwpO30x+eN8kVHRYqPaY9B3huL1Ozrpuu7Sz0dcx+PAjgrptyAPp7xIPPjrr7z8ZTHtbsTudiKQgNZxKcEneD7T0OPz9sJqCrfLMSQHVx5+GK50MgDOHu/9j61WdZgQLVVDRgFS2O5JOs+lUTu2FqhK8I3+lR+JlI2Wow+G/VEKRgMvp5oms5pLocuG5Oqyk1P3AVeT2bktY/5o++/8UdGE28t3ODjGaJ+P2UUh7IBcswEbYcXQM5KGCpRrHNyfB24aLnRZEaF5lddtEq9Q+PB4B8C97/1eR+vigGSQZA+dEb+rdeF74S8Ju4WjxeeCtkFHoECgYEA9x6q4xnz3ql72kr7W2u5zr7xgEJLJ9vI/7I6dXrGPNkQAp+6lRHA35tHhapt9frzDkd7KnrEuTomOQ83TMiNevgnEw/T+IKFHIz1qRarpzmVEXtTFE3PpTzJWBFol9bPdoEyBzjsHTT54czAtexfgFHAmNlET0PqGyxgxN7gLaECgYEA7LMK09xonxvxyLa9oOfzAe+q4z4HFFiN0rjjOiPARryj4vi9dqWXG9lT83dzf48xaC+UHeW6Pb3y9fZjk7Uf1EJPJIhk1dBFra7UCnSngke6s12dldLjpuJoREFFvKMIpw6tAJNs6Omn8AxdrtMu8Ry7/goLUb5Zc5UuSp42GjUCgYAMdGA6d+lhlHsoglTuw5wmvlrfkvfEt4AG2w21NA3frTTwXOqDbtSgsGvHYdKO7inn01RyzKMzjqm0gH7SAN2Yj/8wJ8EQKkvZJ4WOExVtpSpNKkECqfVIJ6siJCZ4WJw2JcbGtGi6BBx/89jWkmYxym0Bhxm5QPwAiJkL8wurYQKBgQCDFhkOAgfy7h/2X7YfUbXUQa4rUaPMEcrhg8Fb5obK5hgBUG5lMgnAw5hpwqK1Z1EeeRMXh62gGf1fWIgHOo0ZGWwJOHxXqZOdP7Bw5fALB7yPL25hljy7pLHH8zoy4TuegVMweXUcfKKkH8UWWCCsKZS3eUqRh9C0YU8UxhACbQKBgQCELMU81MzcD2zEHsldJotbq+7EIFETf1ugF3sDB8HlZxo5zATcqshRVM8/qao15mr3sP8LN0vr/IdX3frRImktU0LysLdedSMv1PrjvJbvdVEnP22I796+R4ZNYABAI+AcwcYPmc/qsTYM4J8DvZsNFe+/NH/+5IFjJov2Cy0aHw==</textarea><br>
+
+            <button onclick="setExample()">Example</button>
+            <button onclick="clearInput()">Clear</button>
+            <button onclick="decryptNMU()">Decrypt</button><br><br>
+            <label for="output-aes">Decrypted Text:</label><br>
+            <textarea id="output-aes" name="output-aes" rows="16" cols="70" disabled></textarea><br><br>
+            <div id="error-message-aes" style="color: red;"></div>
+            <div id="error-message-rsa" style="color: red;"></div>
+            <input type="hidden" id="output-rsa" name="output-rsa"></textarea><br><br>
+            <input type="hidden" id="iv" name="iv" style="width: 300px" disabled><br>
+            <input type="hidden" id="key" name="key" style="width: 300px" disabled><br><br>
+        </div>
+    </div>
+</body>
+</html>
